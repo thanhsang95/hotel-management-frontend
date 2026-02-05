@@ -5,9 +5,12 @@ import {
     ChartBarIcon,
     ChevronDownIcon,
     ChevronLeftIcon,
+    Cog6ToothIcon,
     CubeIcon,
     CurrencyDollarIcon,
     HomeIcon,
+    ShieldCheckIcon,
+    UserGroupIcon,
     UsersIcon,
     XMarkIcon,
 } from '@heroicons/react/24/outline';
@@ -75,6 +78,14 @@ const menuItems: MenuItem[] = [
     icon: UsersIcon,
     children: [
       { label: 'Hồ sơ công ty', path: '/partners/companies', icon: UsersIcon },
+    ],
+  },
+  {
+    label: 'Cài đặt',
+    icon: Cog6ToothIcon,
+    children: [
+      { label: 'Nhân viên', path: '/settings/employees', icon: UserGroupIcon },
+      { label: 'Vai trò & Phân quyền', path: '/settings/roles', icon: ShieldCheckIcon },
     ],
   },
 ];

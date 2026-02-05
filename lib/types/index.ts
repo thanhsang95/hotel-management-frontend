@@ -200,6 +200,56 @@ export interface DashboardData {
 }
 
 // ==========================================
+// Permission Entity (RBAC)
+// ==========================================
+export interface Permission {
+  id: string;
+  code: string;           // e.g., 'RES_VIEW', 'RES_CREATE'
+  label: string;
+  module: string;         // 'Reservation', 'Reception', etc.
+  description?: string;
+}
+
+// ==========================================
+// Role Entity (RBAC)
+// ==========================================
+export interface Role extends BaseEntity {
+  name: string;
+  description?: string;
+  permissionIds: string[];
+}
+
+// ==========================================
+// Employee Entity (RBAC)
+// ==========================================
+export type Gender = 'Male' | 'Female' | 'Other';
+export type EmployeeStatus = 'Active' | 'Inactive';
+export type AccountStatus = 'Active' | 'Locked';
+
+export interface Employee extends BaseEntity {
+  // Personal Info
+  code: string;
+  fullName: string;
+  gender: Gender;
+  dob: string;            // Date of birth (ISO string)
+  phone: string;
+  email: string;
+  address: string;
+  
+  // Job Details
+  departmentId: string;
+  position: string;
+  joinDate: string;       // ISO string
+  status: EmployeeStatus;
+  notes?: string;
+  
+  // Account & Access
+  username: string;
+  accountStatus: AccountStatus;
+  roleIds: string[];
+}
+
+// ==========================================
 // CRUD Operation Types
 // ==========================================
 export type CRUDAction = 'create' | 'read' | 'update' | 'delete';

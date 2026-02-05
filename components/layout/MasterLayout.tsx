@@ -18,8 +18,9 @@ export function MasterLayout({ children }: MasterLayoutProps) {
 
   return (
     <MockDataProvider>
-      <div className="min-h-screen bg-[#F8FAFC]">
-        {/* Header */}
+      {/* Outer Shell: Fixed viewport with no body scroll */}
+      <div className="h-screen overflow-hidden flex flex-col bg-[#F8FAFC]">
+        {/* Header - Fixed at top */}
         <Header 
           onMenuClick={() => setIsSidebarOpen(true)} 
         />
@@ -32,21 +33,22 @@ export function MasterLayout({ children }: MasterLayoutProps) {
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
 
-        {/* Main Content Area */}
+        {/* Content Area Wrapper: Takes remaining space with flex-1 */}
         <div
           className={`
-            pt-16   /* Header height */
+            flex-1 flex flex-col min-h-0 overflow-hidden
+            pt-16   /* Header height offset */
             transition-all duration-300
             ${isSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}
           `}
         >
-          {/* Main Content */}
-          <main className="min-h-[calc(100vh-4rem-3rem)] p-6">
+          {/* Scrollable Main Content Area */}
+          <main className="flex-1 overflow-y-auto min-h-0 p-6">
             <Breadcrumbs />
             {children}
           </main>
 
-          {/* Footer */}
+          {/* Footer - Fixed at bottom, outside scroll area */}
           <Footer />
         </div>
       </div>

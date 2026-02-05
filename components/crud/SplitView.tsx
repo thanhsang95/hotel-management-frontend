@@ -75,7 +75,7 @@ export function SplitView<T>({
   };
 
   return (
-    <div className="h-[calc(100vh-12rem)]">
+    <div className="h-full flex flex-col">
       {/* Page Title */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-[#1E3A8A] font-heading">{title}</h1>
@@ -85,7 +85,7 @@ export function SplitView<T>({
       </div>
 
       {/* Split View Container */}
-      <div className="flex gap-6 h-full">
+      <div className="flex gap-6 flex-1 min-h-0">
         {/* Left Pane - List */}
         <div
           className={`
