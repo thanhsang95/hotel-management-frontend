@@ -107,8 +107,8 @@ export const MOCK_RATE_CODES: RateCode[] = [
       { currencyId: '1', amount: 3500000 }, // VND
       { currencyId: '2', amount: 140 },      // USD
     ],
-    startDate: new Date('2024-01-01'),
-    endDate: new Date('2024-12-31'),
+    startDate: undefined,
+    endDate: undefined,
     isActive: true,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
@@ -123,8 +123,8 @@ export const MOCK_RATE_CODES: RateCode[] = [
       { currencyId: '1', amount: 2200000 }, // VND
       { currencyId: '2', amount: 88 },       // USD
     ],
-    startDate: new Date('2024-01-01'),
-    endDate: new Date('2024-12-31'),
+    startDate: undefined,
+    endDate: undefined,
     isActive: true,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),

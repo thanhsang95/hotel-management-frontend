@@ -13,7 +13,7 @@ export interface SplitViewProps<T> {
   items: T[];
   selectedItem: T | null;
   onSelect: (item: T | null) => void;
-  onCreateNew: () => void;
+  onCreateNew?: () => void;  // Optional - hide button if not provided
   keyExtractor: (item: T) => string;
   renderListItem: (item: T, isSelected: boolean) => React.ReactNode;
   renderForm: () => React.ReactNode;
@@ -70,8 +70,10 @@ export function SplitView<T>({
 
   // Handle create new
   const handleCreateNew = () => {
-    onCreateNew();
-    setIsMobileFormVisible(true);
+    if (onCreateNew) {
+      onCreateNew();
+      setIsMobileFormVisible(true);
+    }
   };
 
   return (
@@ -114,16 +116,18 @@ export function SplitView<T>({
               />
             </div>
 
-            {/* Add Button */}
-            <Button
-              variant="primary"
-              size="medium"
-              fullWidth
-              leftIcon={<PlusIcon className="w-5 h-5" />}
-              onClick={handleCreateNew}
-            >
-              Thêm mới
-            </Button>
+            {/* Add Button - only show if onCreateNew is provided */}
+            {onCreateNew && (
+              <Button
+                variant="primary"
+                size="medium"
+                fullWidth
+                leftIcon={<PlusIcon className="w-5 h-5" />}
+                onClick={handleCreateNew}
+              >
+                Thêm mới
+              </Button>
+            )}
           </div>
 
           {/* List Content */}

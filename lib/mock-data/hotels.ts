@@ -6,9 +6,9 @@ export const MOCK_HOTELS: Hotel[] = [
     name: 'Grand Sài Gòn Hotel',
     address: '8 Đồng Khởi, Bến Nghé, Quận 1, TP. Hồ Chí Minh',
     taxCode: '0301234567',
+    taxId: '0301234567-001',
     checkInTime: '14:00',
     checkOutTime: '12:00',
-    defaultCurrencyId: '1', // VND
     taxPercent: 10,
     serviceChargePercent: 5,
     createdAt: new Date('2024-01-01'),
@@ -19,9 +19,9 @@ export const MOCK_HOTELS: Hotel[] = [
     name: 'Hương Giang Resort & Spa',
     address: '51 Lê Lợi, Phú Hội, TP. Huế, Thừa Thiên Huế',
     taxCode: '3301234567',
+    taxId: '3301234567-001',
     checkInTime: '15:00',
     checkOutTime: '11:00',
-    defaultCurrencyId: '1', // VND
     taxPercent: 10,
     serviceChargePercent: 5,
     createdAt: new Date('2024-01-01'),
@@ -32,9 +32,9 @@ export const MOCK_HOTELS: Hotel[] = [
     name: 'Metropole Hà Nội',
     address: '15 Ngô Quyền, Hoàn Kiếm, Hà Nội',
     taxCode: '0101234567',
+    taxId: '0101234567-001',
     checkInTime: '14:00',
     checkOutTime: '12:00',
-    defaultCurrencyId: '2', // USD (international hotel)
     taxPercent: 10,
     serviceChargePercent: 5,
     createdAt: new Date('2024-01-01'),

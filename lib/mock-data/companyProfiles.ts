@@ -10,6 +10,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'contact@abcvn.com',
     phone: '+84 28 1234 5678',
     creditLimit: 50000000,
+    source: '1', // Direct
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -24,6 +27,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'booking@samsung.vn',
     phone: '+84 28 8765 4321',
     creditLimit: 200000000,
+    source: '1', // Direct
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -38,6 +44,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'booking@vietravel.com',
     phone: '+84 28 2222 3333',
     creditLimit: 100000000,
+    source: '6', // Travel Agent
+    segment: '5', // Wholesale
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '5', // Wholesale Rate
     createdAt: new Date('2024-01-01'),
@@ -52,6 +61,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'reservation@saigontourist.net',
     phone: '+84 28 3333 4444',
     creditLimit: 150000000,
+    source: '6', // Travel Agent
+    segment: '3', // Group
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '4', // Group Rate
     createdAt: new Date('2024-01-01'),
@@ -66,6 +78,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'travel@fpt.com.vn',
     phone: '+84 24 7300 1234',
     creditLimit: 100000000,
+    source: '2', // Website
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -80,6 +95,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'corporate@vingroup.net',
     phone: '+84 28 5555 6666',
     creditLimit: 500000000,
+    source: '1', // Direct
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -94,6 +112,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'partner@klook.com',
     phone: '+84 28 7777 8888',
     creditLimit: 80000000,
+    source: '5', // OTA
+    segment: '2', // FIT
+    channel: '2', // Booking.com
     isBlacklisted: false,
     linkedRateCodeId: '3', // Promotional Rate
     createdAt: new Date('2024-01-01'),
@@ -108,6 +129,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'admin@vng.com.vn',
     phone: '+84 28 9999 0000',
     creditLimit: 120000000,
+    source: '3', // Phone
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -122,6 +146,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'bad@example.com',
     phone: '+84 000 000 0000',
     creditLimit: 0,
+    source: undefined,
+    segment: undefined,
+    channel: undefined,
     isBlacklisted: true,
     linkedRateCodeId: undefined,
     createdAt: new Date('2024-01-01'),
@@ -136,6 +163,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'crew@vietnamairlines.com',
     phone: '+84 24 1900 1100',
     creditLimit: 300000000,
+    source: '1', // Direct
+    segment: '6', // Airline Crew
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '6', // Airline Crew Rate
     createdAt: new Date('2024-01-01'),
@@ -150,6 +180,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'corporate@grab.com',
     phone: '+84 28 3211 2233',
     creditLimit: 80000000,
+    source: '4', // Email
+    segment: '1', // Corporate
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '2', // Corporate Rate
     createdAt: new Date('2024-01-01'),
@@ -164,6 +197,9 @@ export const MOCK_COMPANY_PROFILES: CompanyProfile[] = [
     email: 'booking@fiditour.com.vn',
     phone: '+84 28 3848 5656',
     creditLimit: 60000000,
+    source: '6', // Travel Agent
+    segment: '3', // Group
+    channel: '1', // Direct
     isBlacklisted: false,
     linkedRateCodeId: '4', // Group Rate
     createdAt: new Date('2024-01-01'),

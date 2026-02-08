@@ -56,6 +56,9 @@ function CompanyForm({ company, isNewMode, onSave, onDelete, onCancel }: Company
     phone: company?.phone || '',
     email: company?.email || '',
     contactPerson: company?.contactPerson || '',
+    source: company?.source || '',
+    segment: company?.segment || '',
+    channel: company?.channel || '',
     isBlacklisted: company?.isBlacklisted ?? false,
   });
 
@@ -151,6 +154,54 @@ function CompanyForm({ company, isNewMode, onSave, onDelete, onCancel }: Company
           value={formData.contactPerson}
           onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
         />
+
+        <div className="grid grid-cols-3 gap-4">
+          <Select
+            label="Nguồn"
+            options={[
+              { value: '', label: 'Chọn nguồn...' },
+              { value: '1', label: 'Direct' },
+              { value: '2', label: 'Website' },
+              { value: '3', label: 'Phone' },
+              { value: '4', label: 'Email' },
+              { value: '5', label: 'OTA' },
+              { value: '6', label: 'Travel Agent' },
+              { value: '7', label: 'Referral' },
+            ]}
+            value={formData.source}
+            onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+          />
+
+          <Select
+            label="Phân Khúc"
+            options={[
+              { value: '', label: 'Chọn phân khúc...' },
+              { value: '1', label: 'Corporate' },
+              { value: '2', label: 'FIT' },
+              { value: '3', label: 'Group' },
+              { value: '4', label: 'Government' },
+              { value: '5', label: 'Wholesale' },
+              { value: '6', label: 'Airline Crew' },
+            ]}
+            value={formData.segment}
+            onChange={(e) => setFormData({ ...formData, segment: e.target.value })}
+          />
+
+          <Select
+            label="Kênh"
+            options={[
+              { value: '', label: 'Chọn kênh...' },
+              { value: '1', label: 'Direct' },
+              { value: '2', label: 'Booking.com' },
+              { value: '3', label: 'Agoda' },
+              { value: '4', label: 'Expedia' },
+              { value: '5', label: 'Traveloka' },
+              { value: '7', label: 'GDS' },
+            ]}
+            value={formData.channel}
+            onChange={(e) => setFormData({ ...formData, channel: e.target.value })}
+          />
+        </div>
 
         <div className="p-4 bg-[#FEF2F2] rounded-lg border border-[#FCA5A5]">
           <Checkbox

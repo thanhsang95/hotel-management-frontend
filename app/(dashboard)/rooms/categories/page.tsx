@@ -28,6 +28,10 @@ function RoomCategoryListItem({ roomCategory, roomTypeName }: { roomCategory: Ro
     return BED_TYPES.find((bt) => bt.value === bedType)?.label || bedType;
   };
 
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1 min-w-0">
@@ -43,6 +47,10 @@ function RoomCategoryListItem({ roomCategory, roomTypeName }: { roomCategory: Ro
           <span>{getBedTypeLabel(roomCategory.bedType)}</span>
           <span>•</span>
           <span>{roomCategory.area}m²</span>
+          <span>•</span>
+          <span>{roomCategory.bedCount} giường</span>
+          <span>•</span>
+          <span className="font-medium text-[#1E3A8A]">{formatPrice(roomCategory.basePrice)}</span>
         </div>
       </div>
       <Badge variant="info" size="small">
@@ -87,6 +95,8 @@ function RoomCategoryForm({ roomCategory, isNewMode, onSave, onDelete, onCancel 
         maxOccupancy: roomCategory.maxOccupancy,
         bedType: roomCategory.bedType,
         area: roomCategory.area,
+        basePrice: roomCategory.basePrice,
+        bedCount: roomCategory.bedCount,
         description: roomCategory.description || '',
         amenities: roomCategory.amenities || [],
       });
@@ -183,6 +193,28 @@ function RoomCategoryForm({ roomCategory, isNewMode, onSave, onDelete, onCancel 
             placeholder="25"
             {...register('area', { valueAsNumber: true })}
             error={errors.area?.message}
+            required
+            min={1}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Input
+            label="Giá phòng (VNĐ)"
+            type="number"
+            placeholder="1000000"
+            {...register('basePrice', { valueAsNumber: true })}
+            error={errors.basePrice?.message}
+            required
+            min={0}
+          />
+
+          <Input
+            label="Số giường"
+            type="number"
+            placeholder="1"
+            {...register('bedCount', { valueAsNumber: true })}
+            error={errors.bedCount?.message}
             required
             min={1}
           />

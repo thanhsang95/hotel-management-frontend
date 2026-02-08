@@ -31,13 +31,14 @@ interface RateCodeListItemProps {
 
 function RateCodeListItem({ rateCode, segmentName, channelName }: RateCodeListItemProps) {
   const formatDateRange = () => {
+    if (!rateCode.startDate || !rateCode.endDate) return 'Không giới hạn';
     const start = format(new Date(rateCode.startDate), 'dd/MM/yy');
     const end = format(new Date(rateCode.endDate), 'dd/MM/yy');
     return `${start} - ${end}`;
   };
 
-  const isExpired = new Date(rateCode.endDate) < new Date();
-  const isUpcoming = new Date(rateCode.startDate) > new Date();
+  const isExpired = rateCode.endDate ? new Date(rateCode.endDate) < new Date() : false;
+  const isUpcoming = rateCode.startDate ? new Date(rateCode.startDate) > new Date() : false;
 
   return (
     <div className="flex items-center justify-between">
@@ -107,8 +108,8 @@ function RateCodeForm({ rateCode, isNewMode, onSave, onDelete, onCancel }: RateC
         name: rateCode.name,
         segmentId: rateCode.segmentId || '',
         channelId: rateCode.channelId || '',
-        startDate: format(new Date(rateCode.startDate), 'yyyy-MM-dd'),
-        endDate: format(new Date(rateCode.endDate), 'yyyy-MM-dd'),
+        startDate: rateCode.startDate ? format(new Date(rateCode.startDate), 'yyyy-MM-dd') : '',
+        endDate: rateCode.endDate ? format(new Date(rateCode.endDate), 'yyyy-MM-dd') : '',
         isActive: rateCode.isActive,
       });
       setPrices(rateCode.prices || []);
@@ -216,7 +217,6 @@ function RateCodeForm({ rateCode, isNewMode, onSave, onDelete, onCancel }: RateC
             placeholder="Best Available Rate"
             {...register('name')}
             error={errors.name?.message}
-            required
           />
         </div>
 
@@ -240,7 +240,6 @@ function RateCodeForm({ rateCode, isNewMode, onSave, onDelete, onCancel }: RateC
             type="date"
             {...register('startDate')}
             error={errors.startDate?.message}
-            required
           />
 
           <Input
@@ -248,7 +247,6 @@ function RateCodeForm({ rateCode, isNewMode, onSave, onDelete, onCancel }: RateC
             type="date"
             {...register('endDate')}
             error={errors.endDate?.message}
-            required
           />
         </div>
 
@@ -370,11 +368,11 @@ export default function RateCodesPage() {
   };
 
   const handleSave = (data: RateCodeFormData) => {
-    // Convert date strings to Date objects for MockDataContext
+    // Convert date strings to Date objects for MockDataContext (only if provided)
     const dataWithDates = {
       ...data,
-      startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate),
+      startDate: data.startDate ? new Date(data.startDate) : undefined,
+      endDate: data.endDate ? new Date(data.endDate) : undefined,
     };
     if (isNewMode) {
       const exists = rateCodes.some((r) => r.code.toUpperCase() === data.code.toUpperCase());

@@ -13,10 +13,14 @@ export interface BaseEntity {
 // Currency Entity
 // ==========================================
 export interface Currency extends BaseEntity {
-  code: string;           // 3 char code (VND, USD, EUR)
+  code: string;                // 3 char code (VND, USD, EUR)
   name: string;
-  symbol: string;         // ₫, $, €
+  symbol: string;              // ₫, $, €
   isActive: boolean;
+  isDefault: boolean;          // Only one currency can be default
+  thousandsSeparator: string;  // ',' or '.'
+  decimalSeparator: string;    // '.' or ','
+  decimalPlaces: number;       // Number of decimal places (0-4)
 }
 
 // ==========================================
@@ -40,13 +44,35 @@ export interface RoomCategory extends BaseEntity {
   maxOccupancy: number;
   bedType: string;        // Single, Double, Twin, King, Queen
   area: number;           // Square meters
+  basePrice: number;      // Giá phòng (VNĐ)
+  bedCount: number;       // Số giường
   description?: string;
   amenities?: string[];
 }
 
 // ==========================================
+// Room Status Category
+// ==========================================
+export type RoomStatusCategory = 'Available' | 'Occupied' | 'Maintenance' | 'Transition';
+
+// ==========================================
+// Room Status Definition Entity
+// ==========================================
+export interface RoomStatusDefinition extends BaseEntity {
+  code: string;              // Unique identifier (e.g., 'VACANT_CLEAN', 'CHECKIN')
+  name: string;              // Display name (e.g., 'Vacant Clean', 'Check-in')
+  description?: string;      // Optional detailed description
+  color: string;             // UI color (success, info, warning, danger, secondary, primary)
+  sortOrder: number;         // Display order (lower = first)
+  isActive: boolean;         // Enable/disable status
+  isSystemDefault: boolean;  // System-required statuses (cannot be deleted)
+  category: RoomStatusCategory; // Grouping for organization
+}
+
+// ==========================================
 // Room Entity
 // ==========================================
+// @deprecated - Use RoomStatusDefinition entity instead
 export type RoomStatus = 'Vacant' | 'Occupied' | 'Dirty' | 'OOO';
 
 export interface Room extends BaseEntity {
@@ -54,8 +80,9 @@ export interface Room extends BaseEntity {
   floor: number;
   building?: string;
   categoryId: string;     // FK to RoomCategory
-  status: RoomStatus;
+  statusId: string;       // FK to RoomStatusDefinition
   isClean: boolean;
+  roomType?: string;      // Room type (e.g., "Standard", "Deluxe")
   notes?: string;
 }
 
@@ -100,12 +127,12 @@ export interface RateCodePrice {
 
 export interface RateCode extends BaseEntity {
   code: string;
-  name: string;
+  name?: string;
   segmentId?: string;     // FK to MarketSegment
   channelId?: string;     // FK to Channel
   prices: RateCodePrice[];
-  startDate: Date;
-  endDate: Date;
+  startDate?: Date;
+  endDate?: Date;
   isActive: boolean;
 }
 
@@ -133,6 +160,9 @@ export interface CompanyProfile extends BaseEntity {
   phone?: string;
   contactPerson?: string;
   creditLimit?: number;
+  source?: string;          // FK to SourceCode
+  segment?: string;         // FK to MarketSegment
+  channel?: string;         // FK to Channel
   isBlacklisted: boolean;
   linkedRateCodeId?: string;  // FK to RateCode
 }
@@ -146,11 +176,109 @@ export interface Hotel extends BaseEntity {
   phone?: string;
   email?: string;
   taxCode?: string;
+  taxId?: string;          // Mã số thuế
   checkInTime: string;     // HH:mm format
   checkOutTime: string;    // HH:mm format
-  defaultCurrencyId: string;  // FK to Currency
   taxPercent: number;      // VAT percentage
   serviceChargePercent: number;
+}
+
+// ==========================================
+// Booking Entity
+// ==========================================
+export type BookingStatus = 'Confirmed' | 'CheckedIn' | 'CheckedOut' | 'Cancelled' | 'Pending' | 'Maintenance';
+
+export interface Booking extends BaseEntity {
+  bookingCode: string;         // e.g., '#BK-8321'
+  guestName: string;
+  guestPhone?: string;
+  guestEmail?: string;
+  roomId: string;              // FK to Room
+  roomCategoryId: string;      // FK to RoomCategory
+  checkIn: string;             // ISO date string (YYYY-MM-DD)
+  checkOut: string;            // ISO date string (YYYY-MM-DD)
+  checkInTime?: string;        // HH:mm format, defaults to '14:00' if absent
+  checkOutTime?: string;       // HH:mm format, defaults to '12:00' if absent
+  nights: number;
+  totalAmount: number;         // VND
+  status: BookingStatus;
+  source?: string;             // 'Direct', 'Booking.com', 'Agoda', etc.
+  notes?: string;
+}
+
+// ==========================================
+// Reservation Types (Booking Management)
+// ==========================================
+export type ReservationType = 'FIT' | 'GIT' | 'Walk-in';
+export type ReservationStatus = 'Confirmed' | 'Pending' | 'CheckedIn' | 'CheckedOut' | 'NoShow' | 'Cancelled';
+export type DepositMethod = 'Cash' | 'BankTransfer' | 'CreditCard';
+export type RoomAssignmentStatus = 'assigned' | 'released';
+
+export interface DepositInfo {
+  enabled: boolean;
+  amount?: number;
+  method?: DepositMethod;
+}
+
+export interface RoomHold {
+  roomTypeId: string;
+  roomCategoryId: string;
+  quantity: number;
+  roomPrice: number;
+  rateCodeId?: string;
+  adults: number;
+  children: number;
+  extraBed: boolean;
+  extraBedPrice: number;
+}
+
+export interface RoomAssignment {
+  roomHoldIndex: number;        // Index of the RoomHold this assignment belongs to
+  roomId: string;               // FK to Room
+  roomNumber: string;
+  roomPrice: number;
+  adults: number;
+  children: number;
+  childrenU7: number;           // Children under 7
+  childrenU3: number;           // Children under 3
+  extraBed: boolean;
+  extraBedPrice: number;
+  extraPerson: number;
+  status: RoomAssignmentStatus;
+}
+
+export interface Reservation extends BaseEntity {
+  registrationCode: string;      // e.g., 'RES-001'
+  bookingName: string;
+  companyName?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  vip: boolean;
+  passport?: string;
+  checkIn: string;               // ISO date string (YYYY-MM-DD)
+  checkOut: string;              // ISO date string (YYYY-MM-DD)
+  checkInTime: string;           // HH:mm format
+  checkOutTime: string;          // HH:mm format
+  adults: number;
+  children: number;
+  nights: number;
+  extraBed: boolean;
+  extraBedPrice: number;
+  arrivalTime?: string;          // HH:mm format
+  departureTime?: string;        // HH:mm format
+  userCheckIn?: string;          // Staff who checked in
+  marketSegmentId?: string;      // FK to MarketSegment
+  channelId?: string;            // FK to Channel
+  sourceId?: string;             // FK to SourceCode
+  reservationType: ReservationType;
+  deposit: DepositInfo;
+  specialNotes?: string;
+  internalRequests?: string;
+  roomHolds: RoomHold[];
+  roomAssignments: RoomAssignment[];
+  status: ReservationStatus;
 }
 
 // ==========================================

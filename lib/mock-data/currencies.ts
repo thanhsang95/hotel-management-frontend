@@ -7,6 +7,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'Việt Nam Đồng',
     symbol: '₫',
     isActive: true,
+    isDefault: true,           // VND is default currency
+    thousandsSeparator: '.',   // VND uses . for thousands (1.000.000)
+    decimalSeparator: ',',     // VND uses , for decimals (rarely used)
+    decimalPlaces: 0,          // VND typically has no decimal places
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -16,6 +20,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'US Dollar',
     symbol: '$',
     isActive: true,
+    isDefault: false,
+    thousandsSeparator: ',',   // USD uses , for thousands (1,000,000)
+    decimalSeparator: '.',     // USD uses . for decimals (1,000.50)
+    decimalPlaces: 2,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -25,6 +33,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'Euro',
     symbol: '€',
     isActive: true,
+    isDefault: false,
+    thousandsSeparator: '.',   // EUR uses . for thousands (1.000.000)
+    decimalSeparator: ',',     // EUR uses , for decimals (1.000,50)
+    decimalPlaces: 2,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -34,6 +46,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'Japanese Yen',
     symbol: '¥',
     isActive: true,
+    isDefault: false,
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
+    decimalPlaces: 0,          // JPY has no decimal places
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -43,6 +59,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'Chinese Yuan',
     symbol: '¥',
     isActive: true,
+    isDefault: false,
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
+    decimalPlaces: 2,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -52,6 +72,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'Korean Won',
     symbol: '₩',
     isActive: false,
+    isDefault: false,
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
+    decimalPlaces: 0,          // KRW has no decimal places
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -61,6 +85,10 @@ export const MOCK_CURRENCIES: Currency[] = [
     name: 'British Pound',
     symbol: '£',
     isActive: true,
+    isDefault: false,
+    thousandsSeparator: ',',
+    decimalSeparator: '.',
+    decimalPlaces: 2,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },

@@ -5,6 +5,7 @@ import {
     ChartBarIcon,
     ChevronDownIcon,
     ChevronLeftIcon,
+    ClipboardDocumentListIcon,
     Cog6ToothIcon,
     CubeIcon,
     CurrencyDollarIcon,
@@ -40,6 +41,11 @@ const menuItems: MenuItem[] = [
     icon: HomeIcon,
   },
   {
+    label: 'Đặt phòng',
+    path: '/bookings',
+    icon: ClipboardDocumentListIcon,
+  },
+  {
     label: 'Cấu hình hệ thống',
     icon: BuildingOfficeIcon,
     children: [
@@ -53,6 +59,8 @@ const menuItems: MenuItem[] = [
       { label: 'Loại phòng', path: '/rooms/types', icon: CubeIcon },
       { label: 'Hạng phòng', path: '/rooms/categories', icon: CubeIcon },
       { label: 'Phòng', path: '/rooms/list', icon: CubeIcon },
+      { label: 'Trạng thái phòng', path: '/rooms/timeline', icon: CubeIcon },
+      { label: 'Định nghĩa tình trạng phòng', path: '/rooms/status-definitions', icon: CubeIcon },
     ],
   },
   {
@@ -107,14 +115,14 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
-  const [expandedItems, setExpandedItems] = useState<string[]>(['Quản lý phòng', 'Quản lý giá']);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
-  // Toggle submenu
+  // Toggle submenu — accordion: only one open at a time
   const toggleExpanded = (label: string) => {
     setExpandedItems((prev) =>
       prev.includes(label)
         ? prev.filter((item) => item !== label)
-        : [...prev, label]
+        : [label]  // Close all others, open only this one
     );
   };
 

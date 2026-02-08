@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import {
+    MOCK_BOOKINGS,
     MOCK_CHANNELS,
     MOCK_COMPANY_PROFILES,
     MOCK_CURRENCIES,
@@ -10,12 +11,15 @@ import {
     MOCK_HOTELS,
     MOCK_MARKET_SEGMENTS,
     MOCK_RATE_CODES,
+    MOCK_RESERVATIONS,
     MOCK_ROOM_CATEGORIES,
+    MOCK_ROOM_STATUS_DEFINITIONS,
     MOCK_ROOM_TYPES,
     MOCK_ROOMS,
     MOCK_SOURCE_CODES,
 } from '../mock-data';
 import {
+    Booking,
     Channel,
     CompanyProfile,
     Currency,
@@ -24,8 +28,10 @@ import {
     Hotel,
     MarketSegment,
     RateCode,
+    Reservation,
     Room,
     RoomCategory,
+    RoomStatusDefinition,
     RoomType,
     SourceCode,
 } from '../types';
@@ -36,6 +42,8 @@ import {
 
 interface MockDataContextType {
   // Data State
+  bookings: Booking[];
+  reservations: Reservation[];
   currencies: Currency[];
   roomTypes: RoomType[];
   roomCategories: RoomCategory[];
@@ -48,6 +56,7 @@ interface MockDataContextType {
   companyProfiles: CompanyProfile[];
   hotels: Hotel[];
   dashboardData: DashboardData;
+  roomStatusDefinitions: RoomStatusDefinition[];
 
   // Currency CRUD
   addCurrency: (currency: Omit<Currency, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -104,6 +113,31 @@ interface MockDataContextType {
   updateHotel: (id: string, hotel: Partial<Hotel>) => void;
   deleteHotel: (id: string) => void;
 
+  // Room Status Definition CRUD
+  addRoomStatusDefinition: (status: Omit<RoomStatusDefinition, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateRoomStatusDefinition: (id: string, status: Partial<RoomStatusDefinition>) => void;
+  deleteRoomStatusDefinition: (id: string) => void;
+
+  // Reservation CRUD
+  addReservation: (reservation: Omit<Reservation, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateReservation: (id: string, reservation: Partial<Reservation>) => void;
+  deleteReservation: (id: string) => void;
+
+  // Room Inventory Helpers
+  getAvailableRoomCount: (
+    roomTypeId: string,
+    roomCategoryId: string,
+    checkIn: string,
+    checkOut: string,
+    excludeReservationId?: string
+  ) => number;
+  getAvailableRoomsForCategory: (
+    categoryId: string,
+    checkIn: string,
+    checkOut: string,
+    excludeReservationId?: string
+  ) => Room[];
+
   // Helper Functions
   searchItems: <T extends { id: string }>(
     items: T[],
@@ -148,7 +182,10 @@ export function MockDataProvider({ children }: MockDataProviderProps) {
   const [currencyRates, setCurrencyRates] = useState<CurrencyRate[]>(MOCK_CURRENCY_RATES);
   const [companyProfiles, setCompanyProfiles] = useState<CompanyProfile[]>(MOCK_COMPANY_PROFILES);
   const [hotels, setHotels] = useState<Hotel[]>(MOCK_HOTELS);
+  const [bookings] = useState<Booking[]>(MOCK_BOOKINGS);
+  const [reservations, setReservations] = useState<Reservation[]>(MOCK_RESERVATIONS);
   const [dashboardData] = useState<DashboardData>(MOCK_DASHBOARD_DATA);
+  const [roomStatusDefinitions, setRoomStatusDefinitions] = useState<RoomStatusDefinition[]>(MOCK_ROOM_STATUS_DEFINITIONS);
 
   // ==========================================
   // Currency CRUD Operations
@@ -437,6 +474,124 @@ export function MockDataProvider({ children }: MockDataProviderProps) {
   }, []);
 
   // ==========================================
+  // Reservation CRUD Operations
+  // ==========================================
+
+  const addReservation = useCallback((reservation: Omit<Reservation, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newReservation: Reservation = {
+      ...reservation,
+      id: generateId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setReservations((prev) => [...prev, newReservation]);
+  }, []);
+
+  const updateReservation = useCallback((id: string, reservation: Partial<Reservation>) => {
+    setReservations((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, ...reservation, updatedAt: new Date() } : item
+      )
+    );
+  }, []);
+
+  const deleteReservation = useCallback((id: string) => {
+    setReservations((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  // ==========================================
+  // Room Status Definition CRUD Operations
+  // ==========================================
+
+  const addRoomStatusDefinition = useCallback((status: Omit<RoomStatusDefinition, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newStatus: RoomStatusDefinition = {
+      ...status,
+      id: generateId(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setRoomStatusDefinitions((prev) => [...prev, newStatus]);
+  }, []);
+
+  const updateRoomStatusDefinition = useCallback((id: string, status: Partial<RoomStatusDefinition>) => {
+    setRoomStatusDefinitions((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, ...status, updatedAt: new Date() } : item
+      )
+    );
+  }, []);
+
+  const deleteRoomStatusDefinition = useCallback((id: string) => {
+    setRoomStatusDefinitions((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  // ==========================================
+  // Room Inventory Helpers
+  // ==========================================
+
+  const getAvailableRoomCount = useCallback((
+    roomTypeId: string,
+    roomCategoryId: string,
+    checkIn: string,
+    checkOut: string,
+    excludeReservationId?: string
+  ): number => {
+    // Count total rooms of this type/category
+    const totalRooms = rooms.filter(
+      (r) => {
+        const cat = roomCategories.find((c) => c.id === r.categoryId);
+        return cat && cat.id === roomCategoryId && cat.roomTypeId === roomTypeId && r.statusId !== '6'; // Not OOO
+      }
+    ).length;
+
+    // Count held + assigned rooms across all reservations for overlapping dates
+    let usedCount = 0;
+    reservations.forEach((res) => {
+      if (excludeReservationId && res.id === excludeReservationId) return;
+      if (res.status === 'Cancelled' || res.status === 'NoShow') return;
+      // Check date overlap
+      if (res.checkIn < checkOut && res.checkOut > checkIn) {
+        // Count holds for this type/category
+        res.roomHolds.forEach((hold) => {
+          if (hold.roomTypeId === roomTypeId && hold.roomCategoryId === roomCategoryId) {
+            usedCount += hold.quantity;
+          }
+        });
+      }
+    });
+
+    return Math.max(0, totalRooms - usedCount);
+  }, [rooms, roomCategories, reservations]);
+
+  const getAvailableRoomsForCategory = useCallback((
+    categoryId: string,
+    checkIn: string,
+    checkOut: string,
+    excludeReservationId?: string
+  ): Room[] => {
+    // Get all rooms of this category that aren't OOO
+    const categoryRooms = rooms.filter(
+      (r) => r.categoryId === categoryId && r.statusId !== '6' // Not OOO
+    );
+
+    // Find rooms that are already assigned in overlapping reservations
+    const assignedRoomIds = new Set<string>();
+    reservations.forEach((res) => {
+      if (excludeReservationId && res.id === excludeReservationId) return;
+      if (res.status === 'Cancelled' || res.status === 'NoShow') return;
+      if (res.checkIn < checkOut && res.checkOut > checkIn) {
+        res.roomAssignments.forEach((assignment) => {
+          if (assignment.status === 'assigned') {
+            assignedRoomIds.add(assignment.roomId);
+          }
+        });
+      }
+    });
+
+    return categoryRooms.filter((r) => !assignedRoomIds.has(r.id));
+  }, [rooms, reservations]);
+
+  // ==========================================
   // Helper Functions
   // ==========================================
 
@@ -472,6 +627,8 @@ export function MockDataProvider({ children }: MockDataProviderProps) {
 
   const value: MockDataContextType = {
     // Data
+    bookings,
+    reservations,
     currencies,
     roomTypes,
     roomCategories,
@@ -484,6 +641,7 @@ export function MockDataProvider({ children }: MockDataProviderProps) {
     companyProfiles,
     hotels,
     dashboardData,
+    roomStatusDefinitions,
 
     // Currency CRUD
     addCurrency,
@@ -539,6 +697,20 @@ export function MockDataProvider({ children }: MockDataProviderProps) {
     addHotel,
     updateHotel,
     deleteHotel,
+
+    // Reservation CRUD
+    addReservation,
+    updateReservation,
+    deleteReservation,
+
+    // Room Status Definition CRUD
+    addRoomStatusDefinition,
+    updateRoomStatusDefinition,
+    deleteRoomStatusDefinition,
+
+    // Room Inventory Helpers
+    getAvailableRoomCount,
+    getAvailableRoomsForCategory,
 
     // Helpers
     searchItems,

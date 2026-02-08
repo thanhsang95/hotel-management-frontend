@@ -49,6 +49,11 @@ export const employeeAccountSchema = z.object({
     .min(3, 'Tên đăng nhập tối thiểu 3 ký tự')
     .max(50, 'Tên đăng nhập tối đa 50 ký tự')
     .regex(/^[a-zA-Z0-9._]+$/, 'Tên đăng nhập chỉ chứa chữ, số, dấu chấm và gạch dưới'),
+  password: z
+    .string()
+    .min(6, 'Mật khẩu tối thiểu 6 ký tự')
+    .optional()
+    .or(z.literal('')),
   accountStatus: z.enum(['Active', 'Locked']),
   roleIds: z.array(z.string()).min(1, 'Phải chọn ít nhất một vai trò'),
 });
@@ -84,6 +89,7 @@ export const defaultEmployeeInfoValues: EmployeeInfoFormInput = {
 
 export const defaultEmployeeAccountValues: EmployeeAccountFormInput = {
   username: '',
+  password: '',
   accountStatus: 'Active',
   roleIds: [],
 };

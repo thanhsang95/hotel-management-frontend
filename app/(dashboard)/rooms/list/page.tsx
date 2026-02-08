@@ -1,20 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { SplitView } from '../../../../components/crud';
-import { RoomStatusBadge } from '../../../../components/ui/Badge';
+import { Badge } from '../../../../components/ui/Badge';
 import { Button } from '../../../../components/ui/Button';
 import { Input, Select } from '../../../../components/ui/Input';
 import { ConfirmModal } from '../../../../components/ui/Modal';
 import { useMockData } from '../../../../lib/context/MockDataContext';
-import { Room, RoomStatus } from '../../../../lib/types';
+import { Room } from '../../../../lib/types';
 
 // ==========================================
 // Room List Item
 // ==========================================
 
-function RoomListItem({ room }: { room: Room; isSelected: boolean }) {
+function RoomListItem({ room, statusName, statusColor }: { room: Room; isSelected: boolean; statusName: string; statusColor: string }) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -25,7 +25,9 @@ function RoomListItem({ room }: { room: Room; isSelected: boolean }) {
           Tầng {room.floor} • Tòa {room.building}
         </p>
       </div>
-      <RoomStatusBadge status={room.status as RoomStatus} size="small" />
+      <Badge variant={statusColor as any} size="small" dot>
+        {statusName}
+      </Badge>
     </div>
   );
 }
@@ -40,18 +42,80 @@ interface RoomFormProps {
   onSave: (data: Partial<Room>) => void;
   onDelete: () => void;
   onCancel: () => void;
-  roomCategories: { id: string; name: string }[];
+  roomTypes: { id: string; name: string }[];
+  roomCategories: { id: string; name: string; roomTypeId: string }[];
+  activeStatuses: { id: string; name: string; sortOrder: number }[];
 }
 
-function RoomForm({ room, isNewMode, onSave, onDelete, onCancel, roomCategories }: RoomFormProps) {
+function RoomForm({ room, isNewMode, onSave, onDelete, onCancel, roomTypes, roomCategories, activeStatuses }: RoomFormProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  // Find the roomTypeId from the selected category
+  const initialRoomTypeId = room?.categoryId 
+    ? roomCategories.find(cat => cat.id === room.categoryId)?.roomTypeId || ''
+    : '';
+  
+  const [selectedRoomTypeId, setSelectedRoomTypeId] = useState(initialRoomTypeId);
+  
   const [formData, setFormData] = useState({
     roomNumber: room?.roomNumber || '',
     floor: room?.floor || 1,
     building: room?.building || 'A',
     categoryId: room?.categoryId || '',
-    status: room?.status || 'Vacant',
+    statusId: room?.statusId || (activeStatuses[0]?.id || ''),
+    roomType: room?.roomType || '',
+    notes: room?.notes || '',
   });
+
+  // Filter categories based on selected room type
+  const filteredCategories = selectedRoomTypeId
+    ? roomCategories.filter(cat => cat.roomTypeId === selectedRoomTypeId)
+    : roomCategories;
+
+  // Handle room type change - reset category if it doesn't match new type
+  const handleRoomTypeChange = (newRoomTypeId: string) => {
+    setSelectedRoomTypeId(newRoomTypeId);
+    
+    // Find the room type name to populate the roomType field
+    const selectedType = roomTypes.find(type => type.id === newRoomTypeId);
+    const roomTypeName = selectedType?.name || '';
+    
+    // If current category doesn't belong to new room type, reset it
+    const currentCategory = roomCategories.find(cat => cat.id === formData.categoryId);
+    if (currentCategory && currentCategory.roomTypeId !== newRoomTypeId) {
+      setFormData({ ...formData, categoryId: '', roomType: roomTypeName });
+    } else {
+      setFormData({ ...formData, roomType: roomTypeName });
+    }
+  };
+
+  // Sync state when room changes
+  useEffect(() => {
+    if (room) {
+      const roomTypeId = roomCategories.find(cat => cat.id === room.categoryId)?.roomTypeId || '';
+      setSelectedRoomTypeId(roomTypeId);
+      setFormData({
+        roomNumber: room.roomNumber,
+        floor: room.floor,
+        building: room.building || 'A',
+        categoryId: room.categoryId,
+        statusId: room.statusId,
+        roomType: room.roomType || '',
+        notes: room.notes || '',
+      });
+    } else if (isNewMode) {
+      setSelectedRoomTypeId('');
+      setFormData({
+        roomNumber: '',
+        floor: 1,
+        building: 'A',
+        categoryId: '',
+        statusId: activeStatuses[0]?.id || '',
+        roomType: '',
+        notes: '',
+      });
+    }
+  }, [room, isNewMode, roomCategories, activeStatuses]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,17 +137,16 @@ function RoomForm({ room, isNewMode, onSave, onDelete, onCancel, roomCategories 
     );
   }
 
-  const statusOptions = [
-    { value: 'Vacant', label: 'Trống' },
-    { value: 'Occupied', label: 'Có khách' },
-    { value: 'Dirty', label: 'Bẩn' },
-    { value: 'OOO', label: 'Hỏng / Bảo trì' },
-  ];
+  // Sort statuses by sortOrder
+  const sortedStatuses = [...activeStatuses].sort((a, b) => a.sortOrder - b.sortOrder);
 
-  const categoryOptions = roomCategories.map((cat) => ({
-    value: cat.id,
-    label: cat.name,
-  }));
+  const statusOptions = [
+    { value: '', label: 'Chọn trạng thái...' },
+    ...sortedStatuses.map((status) => ({
+      value: status.id,
+      label: status.name,
+    })),
+  ];
 
   return (
     <div className="space-y-6">
@@ -126,19 +189,53 @@ function RoomForm({ room, isNewMode, onSave, onDelete, onCancel, roomCategories 
         </div>
 
         <Select
+          label="Dạng phòng"
+          options={[
+            { value: '', label: 'Chọn dạng phòng...' },
+            ...roomTypes.map((type) => ({
+              value: type.id,
+              label: type.name,
+            })),
+          ]}
+          value={selectedRoomTypeId}
+          onChange={(e) => handleRoomTypeChange(e.target.value)}
+          placeholder="Chọn dạng phòng trước..."
+        />
+
+        <Select
           label="Hạng phòng"
-          options={categoryOptions}
+          options={[
+            { value: '', label: selectedRoomTypeId ? 'Chọn hạng phòng...' : 'Vui lòng chọn dạng phòng trước' },
+            ...filteredCategories.map((cat) => ({
+              value: cat.id,
+              label: cat.name,
+            })),
+          ]}
           value={formData.categoryId}
           onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
           placeholder="Chọn hạng phòng..."
+          disabled={!selectedRoomTypeId}
         />
 
         <Select
           label="Trạng thái"
           options={statusOptions}
-          value={formData.status}
-          onChange={(e) => setFormData({ ...formData, status: e.target.value as RoomStatus })}
+          value={formData.statusId}
+          onChange={(e) => setFormData({ ...formData, statusId: e.target.value })}
         />
+
+        <div>
+          <label className="block text-sm font-medium text-[#1E3A8A] mb-1.5">
+            Ghi chú
+          </label>
+          <textarea
+            className="w-full px-3 py-2 border border-[#E2E8F0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent resize-none"
+            rows={3}
+            placeholder="Nhập ghi chú..."
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          />
+        </div>
 
         <div className="flex items-center gap-3 pt-6 border-t border-[#E2E8F0]">
           <Button type="submit" variant="primary">Lưu</Button>
@@ -175,9 +272,23 @@ function RoomForm({ room, isNewMode, onSave, onDelete, onCancel, roomCategories 
 // ==========================================
 
 export default function RoomsPage() {
-  const { rooms, roomCategories, addRoom, updateRoom, deleteRoom } = useMockData();
+  const { rooms, roomTypes, roomCategories, roomStatusDefinitions, addRoom, updateRoom, deleteRoom } = useMockData();
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isNewMode, setIsNewMode] = useState(false);
+
+  // Filter active statuses for the form dropdown
+  const activeStatuses = roomStatusDefinitions
+    .filter(status => status.isActive)
+    .map(status => ({ id: status.id, name: status.name, sortOrder: status.sortOrder }));
+
+  // Helper to get status details
+  const getStatusDetails = (statusId: string) => {
+    const status = roomStatusDefinitions.find(s => s.id === statusId);
+    return {
+      name: status?.name || 'Unknown',
+      color: status?.color || 'neutral',
+    };
+  };
 
   const handleSelect = (room: Room | null) => {
     setSelectedRoom(room);
@@ -229,9 +340,17 @@ export default function RoomsPage() {
       searchKeys={['roomNumber', 'building']}
       searchPlaceholder="Tìm theo số phòng..."
       emptyMessage="Chưa có phòng nào"
-      renderListItem={(room, isSelected) => (
-        <RoomListItem room={room} isSelected={isSelected} />
-      )}
+      renderListItem={(room, isSelected) => {
+        const statusDetails = getStatusDetails(room.statusId);
+        return (
+          <RoomListItem 
+            room={room} 
+            isSelected={isSelected} 
+            statusName={statusDetails.name}
+            statusColor={statusDetails.color}
+          />
+        );
+      }}
       renderForm={() => (
         <RoomForm
           room={selectedRoom}
@@ -239,7 +358,9 @@ export default function RoomsPage() {
           onSave={handleSave}
           onDelete={handleDelete}
           onCancel={handleCancel}
+          roomTypes={roomTypes}
           roomCategories={roomCategories}
+          activeStatuses={activeStatuses}
         />
       )}
     />

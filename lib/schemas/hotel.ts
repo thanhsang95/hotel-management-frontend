@@ -12,9 +12,9 @@ export const hotelSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email('Email không hợp lệ').optional().or(z.literal('')),
   taxCode: z.string().optional(),
+  taxId: z.string().optional(),
   checkInTime: z.string().regex(timeRegex, 'Giờ check-in không hợp lệ (HH:mm)'),
   checkOutTime: z.string().regex(timeRegex, 'Giờ check-out không hợp lệ (HH:mm)'),
-  defaultCurrencyId: z.string().min(1, 'Tiền tệ mặc định là bắt buộc'),
   taxPercent: z.number().min(0, '% Thuế phải >= 0').max(100, '% Thuế phải <= 100'),
   serviceChargePercent: z.number().min(0, '% Phí dịch vụ phải >= 0').max(100, '% Phí dịch vụ phải <= 100'),
 });
@@ -28,9 +28,9 @@ export const defaultHotelValues: HotelFormInput = {
   phone: '',
   email: '',
   taxCode: '',
+  taxId: '',
   checkInTime: '14:00',
   checkOutTime: '12:00',
-  defaultCurrencyId: '',
   taxPercent: 10,
   serviceChargePercent: 5,
 };

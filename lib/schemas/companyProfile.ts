@@ -13,6 +13,9 @@ export const companyProfileSchema = z.object({
   phone: z.string().optional(),
   contactPerson: z.string().optional(),
   creditLimit: z.number().min(0, 'Hạn mức phải >= 0').optional(),
+  source: z.string().optional(),
+  segment: z.string().optional(),
+  channel: z.string().optional(),
   isBlacklisted: z.boolean().default(false),
   linkedRateCodeId: z.string().optional(),
 });
@@ -29,6 +32,9 @@ export const defaultCompanyProfileValues: CompanyProfileFormInput = {
   phone: '',
   contactPerson: '',
   creditLimit: 0,
+  source: '',
+  segment: '',
+  channel: '',
   isBlacklisted: false,
   linkedRateCodeId: '',
 };

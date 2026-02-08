@@ -12,8 +12,9 @@ export const roomSchema = z.object({
   floor: z.number().min(0, 'Tầng phải >= 0').max(100, 'Tầng tối đa 100'),
   building: z.string().optional(),
   categoryId: z.string().min(1, 'Hạng phòng là bắt buộc'),
-  status: z.enum(['Vacant', 'Occupied', 'Dirty', 'OOO']),
+  statusId: z.string().min(1, 'Trạng thái phòng là bắt buộc'),
   isClean: z.boolean().default(true),
+  roomType: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -25,14 +26,10 @@ export const defaultRoomValues: RoomFormInput = {
   floor: 1,
   building: '',
   categoryId: '',
-  status: 'Vacant',
+  statusId: '',
   isClean: true,
+  roomType: '',
   notes: '',
 };
 
-export const ROOM_STATUSES = [
-  { value: 'Vacant', label: 'Trống', color: 'success' },
-  { value: 'Occupied', label: 'Có khách', color: 'info' },
-  { value: 'Dirty', label: 'Bẩn', color: 'warning' },
-  { value: 'OOO', label: 'Hỏng/Bảo trì', color: 'danger' },
-] as const;
+

@@ -48,15 +48,24 @@ export const MOCK_ROLES: Role[] = [
     id: 'role-2',
     name: 'Manager',
     description: 'Quản lý với quyền quản lý phòng, giá, marketing và đối tác',
-    permissionIds: getPermissionIdsForModules([
-      'Dashboard',
-      'Đặt phòng',
-      'Lễ tân',
-      'Phòng',
-      'Giá & Tiền tệ',
-      'Marketing',
-      'Đối tác',
-    ]),
+    permissionIds: [
+      ...getPermissionIdsForModules([
+        'Dashboard',
+        'Đặt phòng',
+        'Lễ tân',
+        'Phòng',
+        'Giá & Tiền tệ',
+        'Marketing',
+        'Đối tác',
+      ]),
+      // Report permissions
+      '37', // REPORT_DASH_VIEW
+      '38', // REPORT_RES_VIEW
+      '39', // REPORT_ROOM_VIEW
+      '40', // REPORT_PRICE_VIEW
+      '41', // REPORT_MKT_VIEW
+      '42', // REPORT_PARTNER_VIEW
+    ],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -95,6 +104,9 @@ export const MOCK_ROLES: Role[] = [
       ...getPermissionIdsForModules(['Giá & Tiền tệ']),
       // View-only for other modules
       ...getViewOnlyPermissionIds(['Dashboard', 'Đặt phòng', 'Đối tác']),
+      // Report permissions
+      '37', // REPORT_DASH_VIEW
+      '40', // REPORT_PRICE_VIEW
     ],
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),

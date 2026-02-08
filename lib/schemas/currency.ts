@@ -20,6 +20,10 @@ export const currencySchema = z.object({
     .min(1, 'Ký hiệu là bắt buộc')
     .max(5, 'Ký hiệu tối đa 5 ký tự'),
   isActive: z.boolean(),
+  isDefault: z.boolean().default(false),
+  thousandsSeparator: z.enum([',', '.', ' ', '']).default(','),
+  decimalSeparator: z.enum(['.', ',']).default('.'),
+  decimalPlaces: z.number().min(0, 'Số chữ số thập phân >= 0').max(4, 'Số chữ số thập phân <= 4').default(2),
 });
 
 // Input type (what the form expects)
@@ -34,4 +38,8 @@ export const defaultCurrencyValues: CurrencyFormInput = {
   name: '',
   symbol: '',
   isActive: true,
+  isDefault: false,
+  thousandsSeparator: ',',
+  decimalSeparator: '.',
+  decimalPlaces: 2,
 };

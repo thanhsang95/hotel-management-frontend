@@ -15,6 +15,8 @@ export const roomCategorySchema = z.object({
   maxOccupancy: z.number().min(1, 'Số người tối đa phải ít nhất là 1').max(10, 'Số người tối đa không quá 10'),
   bedType: z.string().min(1, 'Loại giường là bắt buộc'),
   area: z.number().min(1, 'Diện tích phải lớn hơn 0'),
+  basePrice: z.number().min(0, 'Giá phòng phải lớn hơn hoặc bằng 0'),
+  bedCount: z.number().min(1, 'Số giường phải ít nhất là 1'),
   description: z.string().optional(),
   amenities: z.array(z.string()).optional(),
 });
@@ -29,6 +31,8 @@ export const defaultRoomCategoryValues: RoomCategoryFormInput = {
   maxOccupancy: 2,
   bedType: '',
   area: 25,
+  basePrice: 0,
+  bedCount: 1,
   description: '',
   amenities: [],
 };

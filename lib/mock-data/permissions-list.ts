@@ -57,6 +57,7 @@ export const PERMISSION_MODULES = [
   'Đối tác',
   'Nhân viên',
   'Cấu hình',
+  'Báo cáo',
 ] as const;
 
 export type PermissionModule = typeof PERMISSION_MODULES[number];
@@ -92,6 +93,57 @@ export const PERMISSIONS_LIST: Permission[] = [
   
   // Settings / Cấu hình (33-36)
   ...generateModulePermissions('Cấu hình', 'CONFIG', 33),
+  
+  // Reports / Báo cáo (37-43) - View-only permissions per functional area
+  {
+    id: '37',
+    code: 'REPORT_DASH_VIEW',
+    label: 'Báo cáo Dashboard',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Dashboard',
+  },
+  {
+    id: '38',
+    code: 'REPORT_RES_VIEW',
+    label: 'Báo cáo Đặt phòng',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Đặt phòng',
+  },
+  {
+    id: '39',
+    code: 'REPORT_ROOM_VIEW',
+    label: 'Báo cáo Phòng',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Phòng',
+  },
+  {
+    id: '40',
+    code: 'REPORT_PRICE_VIEW',
+    label: 'Báo cáo Giá & Tiền tệ',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Giá & Tiền tệ',
+  },
+  {
+    id: '41',
+    code: 'REPORT_MKT_VIEW',
+    label: 'Báo cáo Marketing',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Marketing',
+  },
+  {
+    id: '42',
+    code: 'REPORT_PARTNER_VIEW',
+    label: 'Báo cáo Đối tác',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Đối tác',
+  },
+  {
+    id: '43',
+    code: 'REPORT_EMP_VIEW',
+    label: 'Báo cáo Nhân viên',
+    module: 'Báo cáo',
+    description: 'Quyền xem báo cáo Nhân viên',
+  },
 ];
 
 // ==========================================
