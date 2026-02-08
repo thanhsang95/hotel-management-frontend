@@ -91,7 +91,7 @@ function generateBookings(): Booking[] {
 
   MOCK_ROOMS.forEach((room) => {
     // === OOO rooms: create a single Maintenance entry spanning the window ===
-    if (room.status === 'OOO') {
+    if (room.statusId === '6') { // statusId '6' = OOO (Out of Order)
       const maintNote = MAINTENANCE_NOTES[Math.floor(random() * MAINTENANCE_NOTES.length)];
       bookings.push({
         id: bookingId.toString(),

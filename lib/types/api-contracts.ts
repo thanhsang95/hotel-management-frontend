@@ -177,9 +177,9 @@ export interface ApiEndpoints {
     /**
      * PATCH /api/rooms/:id/status
      * Quick status update (for housekeeping)
-     * Body: { status: RoomStatus, isClean?: boolean }
+     * Body: { statusId: string, isClean?: boolean }
      */
-    updateStatus: (id: string, status: Room['status'], isClean?: boolean) => Promise<ApiResponse<Room>>;
+    updateStatus: (id: string, statusId: string, isClean?: boolean) => Promise<ApiResponse<Room>>;
   };
 
   // ==========================================

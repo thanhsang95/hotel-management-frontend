@@ -119,7 +119,7 @@ MOCK_ROOM_CATEGORIES.forEach((cat) => {
 // Build available rooms grouped by categoryId
 const roomsByCategory: Record<string, typeof MOCK_ROOMS> = {};
 MOCK_ROOMS.forEach((room) => {
-  if (room.status !== 'OOO') {
+  if (room.statusId !== '6') { // Exclude OOO rooms (statusId '6' = Out of Order)
     if (!roomsByCategory[room.categoryId]) {
       roomsByCategory[room.categoryId] = [];
     }
