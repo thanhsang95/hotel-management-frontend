@@ -77,16 +77,25 @@ export function RoomHoldForm({
     return getAvailableRoomCount(roomTypeId, roomCategoryId, checkIn, checkOut, reservationId);
   }, [roomTypeId, roomCategoryId, checkIn, checkOut, reservationId, getAvailableRoomCount]);
 
-  // Handle type change → reset category
+  // Handle type change → reset category, price, rate code
   const handleTypeChange = (typeId: string) => {
     setRoomTypeId(typeId);
     setRoomCategoryId('');
+    setRoomPrice(0);
+    setRateCodeId('');
   };
 
-  // Handle category change → auto-fill price from rate code
+  // Handle category change → auto-fill price from category basePrice
   const handleCategoryChange = (catId: string) => {
     setRoomCategoryId(catId);
-    // Try to get price from first active rate code
+
+    // Auto-fill price from category basePrice
+    const category = roomCategories.find((c) => c.id === catId);
+    if (category) {
+      setRoomPrice(category.basePrice);
+    }
+
+    // If rate code is selected, override with rate code price
     if (rateCodeId) {
       const rc = rateCodes.find((r) => r.id === rateCodeId);
       if (rc && rc.prices.length > 0) {
@@ -97,9 +106,17 @@ export function RoomHoldForm({
 
   const handleRateCodeChange = (rcId: string) => {
     setRateCodeId(rcId);
-    const rc = rateCodes.find((r) => r.id === rcId);
-    if (rc && rc.prices.length > 0) {
-      setRoomPrice(rc.prices[0].amount);
+    if (rcId) {
+      const rc = rateCodes.find((r) => r.id === rcId);
+      if (rc && rc.prices.length > 0) {
+        setRoomPrice(rc.prices[0].amount);
+      }
+    } else {
+      // Cleared rate code — revert to category basePrice
+      const category = roomCategories.find((c) => c.id === roomCategoryId);
+      if (category) {
+        setRoomPrice(category.basePrice);
+      }
     }
   };
 
