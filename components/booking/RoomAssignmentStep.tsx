@@ -103,6 +103,10 @@ export function RoomAssignmentStep({
     );
   }, [roomAssignments, onRoomAssignmentsChange]);
 
+  const handleAddAssignment = useCallback((assignment: RoomAssignment) => {
+    onRoomAssignmentsChange([...roomAssignments, assignment]);
+  }, [roomAssignments, onRoomAssignmentsChange]);
+
   const handleCancelAll = useCallback(() => {
     onRoomAssignmentsChange([]);
   }, [onRoomAssignmentsChange]);
@@ -112,50 +116,69 @@ export function RoomAssignmentStep({
     if (!hold) return;
 
     const existingCount = roomAssignments.filter(
-      (a) => a.roomHoldIndex === holdIndex && a.status === 'assigned'
+      (a) => a.roomHoldIndex === holdIndex && (a.status === 'assigned' || a.status === 'pending')
     ).length;
     const remaining = hold.quantity - existingCount;
     if (remaining <= 0) return;
 
-    const availableRooms = getAvailableRoomsForCategory(
-      hold.roomCategoryId,
-      checkIn,
-      checkOut,
-      reservationId
-    );
+    if (mode === 'create') {
+      // Create mode: generate placeholder assignments with hold values (no specific room)
+      const newAssignments: RoomAssignment[] = [];
+      for (let i = 0; i < remaining; i++) {
+        newAssignments.push({
+          roomHoldIndex: holdIndex,
+          roomId: '',
+          roomNumber: '',
+          roomPrice: hold.roomPrice,
+          adults: hold.adults,
+          children: hold.children,
+          childrenU7: 0,
+          childrenU3: 0,
+          extraBed: hold.extraBed,
+          extraBedPrice: hold.extraBedPrice,
+          extraPerson: 0,
+          status: 'pending',
+        });
+      }
+      onRoomAssignmentsChange([...roomAssignments, ...newAssignments]);
+    } else {
+      // Edit mode: assign actual rooms
+      const availableRooms = getAvailableRoomsForCategory(
+        hold.roomCategoryId,
+        checkIn,
+        checkOut,
+        reservationId
+      );
 
-    // Filter out rooms already assigned in this reservation
-    const alreadyAssignedIds = new Set(
-      roomAssignments
-        .filter((a) => a.status === 'assigned')
-        .map((a) => a.roomId)
-    );
-    const candidates = availableRooms.filter((r) => !alreadyAssignedIds.has(r.id));
+      const alreadyAssignedIds = new Set(
+        roomAssignments
+          .filter((a) => a.status === 'assigned')
+          .map((a) => a.roomId)
+      );
+      const candidates = availableRooms.filter((r) => !alreadyAssignedIds.has(r.id));
+      candidates.sort((a, b) => a.floor - b.floor);
 
-    // Sort by floor to prefer same floor
-    candidates.sort((a, b) => a.floor - b.floor);
-
-    const newAssignments: RoomAssignment[] = [];
-    for (let i = 0; i < Math.min(remaining, candidates.length); i++) {
-      const room = candidates[i];
-      newAssignments.push({
-        roomHoldIndex: holdIndex,
-        roomId: room.id,
-        roomNumber: room.roomNumber,
-        roomPrice: hold.roomPrice,
-        adults: hold.adults,
-        children: hold.children,
-        childrenU7: 0,
-        childrenU3: 0,
-        extraBed: hold.extraBed,
-        extraBedPrice: hold.extraBedPrice,
-        extraPerson: 0,
-        status: 'assigned',
-      });
+      const newAssignments: RoomAssignment[] = [];
+      for (let i = 0; i < Math.min(remaining, candidates.length); i++) {
+        const room = candidates[i];
+        newAssignments.push({
+          roomHoldIndex: holdIndex,
+          roomId: room.id,
+          roomNumber: room.roomNumber,
+          roomPrice: hold.roomPrice,
+          adults: hold.adults,
+          children: hold.children,
+          childrenU7: 0,
+          childrenU3: 0,
+          extraBed: hold.extraBed,
+          extraBedPrice: hold.extraBedPrice,
+          extraPerson: 0,
+          status: 'assigned',
+        });
+      }
+      onRoomAssignmentsChange([...roomAssignments, ...newAssignments]);
     }
-
-    onRoomAssignmentsChange([...roomAssignments, ...newAssignments]);
-  }, [roomHolds, roomAssignments, checkIn, checkOut, reservationId, getAvailableRoomsForCategory, onRoomAssignmentsChange]);
+  }, [mode, roomHolds, roomAssignments, checkIn, checkOut, reservationId, getAvailableRoomsForCategory, onRoomAssignmentsChange]);
 
   // ---- Summary Stats ----
   const totalHeldRooms = useMemo(() =>
@@ -321,6 +344,7 @@ export function RoomAssignmentStep({
                   roomCategoryName={getRoomCategoryName(hold.roomCategoryId)}
                   availableRooms={availableRooms}
                   onAssignRoom={handleAssignRoom}
+                  onAddAssignment={handleAddAssignment}
                   onRemoveAssignment={handleRemoveAssignment}
                   onAutoAssign={handleAutoAssign}
                   mode={mode}

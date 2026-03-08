@@ -8,6 +8,7 @@ import {
 import { useState } from 'react';
 import { Room, RoomAssignment, RoomHold } from '../../lib/types';
 import { formatPrice } from '../../lib/utils/format';
+import { AssignmentForm } from './assignment-form';
 import { RoomSelector } from './RoomSelector';
 
 // ==========================================
@@ -26,6 +27,7 @@ interface RoomAssignmentGroupProps {
   roomCategoryName: string;
   availableRooms: Room[];
   onAssignRoom: (holdIndex: number, roomId: string) => void;
+  onAddAssignment: (assignment: RoomAssignment) => void;
   onRemoveAssignment: (globalIndex: number) => void;
   onAutoAssign: (holdIndex: number) => void;
   mode: 'create' | 'edit';
@@ -124,11 +126,13 @@ export function RoomAssignmentGroup({
   roomCategoryName,
   availableRooms,
   onAssignRoom,
+  onAddAssignment,
   onRemoveAssignment,
   onAutoAssign,
   mode,
 }: RoomAssignmentGroupProps) {
   const [showSelector, setShowSelector] = useState(false);
+  const [showAssignmentForm, setShowAssignmentForm] = useState(false);
 
   const assignedCount = assignments.length;
   const totalCount = hold.quantity;
@@ -193,7 +197,7 @@ export function RoomAssignmentGroup({
               </button>
             )}
 
-            {/* Add Room (+) */}
+            {/* Add Room (+) — opens RoomSelector in edit mode */}
             <button
               onClick={() => setShowSelector(true)}
               disabled={isFull}
@@ -214,15 +218,72 @@ export function RoomAssignmentGroup({
             </button>
           </div>
         )}
+
+        {mode === 'create' && (
+          <div className="flex items-center gap-2">
+            {/* Auto Assign — copies hold values */}
+            {!isFull && (
+              <button
+                onClick={() => onAutoAssign(holdIndex)}
+                className="
+                  flex items-center gap-1 px-2.5 py-1 rounded-lg
+                  text-xs font-medium
+                  text-[#F59E0B] bg-[#FFFBEB] hover:bg-[#FEF3C7]
+                  transition-all duration-200 cursor-pointer
+                "
+                title="Tự động thêm đủ số lượng từ Giữ phòng"
+                id={`btn-auto-assign-${holdIndex}`}
+              >
+                <BoltIcon className="w-3.5 h-3.5" />
+                Auto
+              </button>
+            )}
+
+            {/* Add Assignment (+) — opens customization form */}
+            <button
+              onClick={() => setShowAssignmentForm(true)}
+              disabled={isFull}
+              className={`
+                flex items-center gap-1 px-2.5 py-1 rounded-lg
+                text-xs font-medium
+                transition-all duration-200 cursor-pointer
+                ${isFull
+                  ? 'text-[#9CA3AF] bg-[#F3F4F6] cursor-not-allowed'
+                  : 'text-[#1E40AF] bg-[#EFF6FF] hover:bg-[#DBEAFE]'
+                }
+              `}
+              title={isFull ? `Đã đủ ${totalCount} phòng` : 'Thêm phân phòng'}
+              id={`btn-add-room-${holdIndex}`}
+            >
+              <PlusIcon className="w-3.5 h-3.5" />
+              Thêm
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Room Selector Modal */}
+      {/* Room Selector — edit mode only */}
       {mode === 'edit' && showSelector && (
         <div className="px-4 py-3 bg-[#FEFCE8] border-b border-[#E2E8F0]">
           <RoomSelector
             availableRooms={availableRooms}
             onSelect={handleSelectRoom}
             onCancel={() => setShowSelector(false)}
+          />
+        </div>
+      )}
+
+      {/* Assignment Form — create mode: customize from hold values */}
+      {mode === 'create' && showAssignmentForm && (
+        <div className="px-4 py-3 border-b border-[#E2E8F0]">
+          <AssignmentForm
+            hold={hold}
+            holdIndex={holdIndex}
+            onAdd={(assignment) => {
+              onAddAssignment(assignment);
+              setShowAssignmentForm(false);
+            }}
+            onCancel={() => setShowAssignmentForm(false)}
           />
         </div>
       )}
