@@ -1,8 +1,9 @@
 'use client';
 
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { RateCode, RoomCategory, RoomHold, RoomType } from '../../lib/types';
+import { formatCurrency, parseCurrency } from '../../lib/utils/format';
 
 // ==========================================
 // Types
@@ -64,6 +65,12 @@ export function RoomHoldForm({
   const [children, setChildren] = useState(0);
   const [extraBed, setExtraBed] = useState(false);
   const [extraBedPrice, setExtraBedPrice] = useState(0);
+  const [priceDisplay, setPriceDisplay] = useState(roomPrice ? formatCurrency(roomPrice) : '');
+
+  // Keep priceDisplay in sync when roomPrice changes programmatically
+  useEffect(() => {
+    setPriceDisplay(roomPrice ? formatCurrency(roomPrice) : '');
+  }, [roomPrice]);
 
   // Filtered categories based on selected room type
   const filteredCategories = useMemo(() => {
@@ -215,11 +222,16 @@ export function RoomHoldForm({
         <div>
           <label className={labelStyle}>Giá phòng (VND)</label>
           <input
-            type="number"
-            min={0}
-            step={50000}
-            value={roomPrice}
-            onChange={(e) => setRoomPrice(parseInt(e.target.value) || 0)}
+            type="text"
+            inputMode="numeric"
+            value={priceDisplay}
+            onChange={(e) => setPriceDisplay(e.target.value)}
+            onFocus={() => setPriceDisplay(roomPrice ? String(roomPrice) : '')}
+            onBlur={() => {
+              const parsed = parseCurrency(priceDisplay);
+              setRoomPrice(parsed);
+              setPriceDisplay(parsed ? formatCurrency(parsed) : '');
+            }}
             className={inputStyle}
             id="input-hold-price"
           />
