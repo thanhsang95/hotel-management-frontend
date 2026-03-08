@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { useMockData } from '../../lib/context/MockDataContext';
 import { DepositInfo, DepositMethod, ReservationType } from '../../lib/types';
+import { formatCurrency, parseCurrency } from '../../lib/utils/format';
 import { ValidationErrors } from './BookingWizard';
 
 // ==========================================
@@ -45,6 +47,7 @@ interface GuestInfoFormProps {
   errors: ValidationErrors;
   onChange: (field: keyof GuestInfoFormData, value: unknown) => void;
   onDepositChange: (deposit: Partial<DepositInfo>) => void;
+  onNightsChange: (nights: number) => void;
   calculatedNights: number;
 }
 
@@ -111,10 +114,29 @@ export function GuestInfoForm({
   errors,
   onChange,
   onDepositChange,
+  onNightsChange,
   calculatedNights,
 }: GuestInfoFormProps) {
   const { marketSegments, channels, sourceCodes } = useMockData();
   const visibility = getFieldVisibility(reservationType);
+
+  const [depositDisplay, setDepositDisplay] = useState(
+    formData.deposit.amount ? formatCurrency(formData.deposit.amount) : ''
+  );
+
+  const handleDepositFocus = () => {
+    setDepositDisplay(formData.deposit.amount ? String(formData.deposit.amount) : '');
+  };
+
+  const handleDepositBlur = () => {
+    const parsed = parseCurrency(depositDisplay);
+    setDepositDisplay(parsed ? formatCurrency(parsed) : '');
+    onDepositChange({ amount: parsed });
+  };
+
+  const handleDepositInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDepositDisplay(e.target.value);
+  };
 
   return (
     <div className="p-6 space-y-8" id="guest-info-form">
@@ -127,10 +149,10 @@ export function GuestInfoForm({
             <label className={labelStyle}>Mã đăng ký</label>
             <input
               type="text"
-              value={formData.registrationCode}
-              onChange={(e) => onChange('registrationCode', e.target.value)}
-              placeholder="Tự động tạo nếu bỏ trống"
-              className={inputStyle}
+              value={formData.registrationCode || ''}
+              readOnly
+              placeholder="Tự động tạo khi lưu"
+              className={`${inputStyle} bg-[#F8FAFC] cursor-not-allowed`}
               id="input-reg-code"
             />
           </div>
@@ -327,12 +349,22 @@ export function GuestInfoForm({
             )}
           </div>
 
-          {/* Nights (auto-calculated, read-only) */}
+          {/* Nights */}
           <div>
             <label className={labelStyle}>Số đêm</label>
-            <div className="px-3.5 py-2.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-sm font-semibold text-[#1E3A8A]">
-              {calculatedNights} đêm
-            </div>
+            <input
+              type="number"
+              min={1}
+              value={calculatedNights || ''}
+              onChange={(e) => {
+                const nights = parseInt(e.target.value) || 0;
+                if (nights > 0) {
+                  onNightsChange(nights);
+                }
+              }}
+              className={`${inputStyle} font-semibold text-[#1E3A8A]`}
+              id="input-nights"
+            />
           </div>
 
           {/* Check-in Time */}
@@ -461,9 +493,9 @@ export function GuestInfoForm({
             <input
               type="text"
               value={formData.userCheckIn}
-              onChange={(e) => onChange('userCheckIn', e.target.value)}
+              readOnly
               placeholder="Nhân viên nhận phòng"
-              className={inputStyle}
+              className={`${inputStyle} bg-[#F8FAFC] cursor-not-allowed`}
               id="input-user-checkin"
             />
           </div>
@@ -571,11 +603,12 @@ export function GuestInfoForm({
                     Số tiền đặt cọc (VND) <span className="text-[#EF4444]">*</span>
                   </label>
                   <input
-                    type="number"
-                    min={0}
-                    step={100000}
-                    value={formData.deposit.amount || ''}
-                    onChange={(e) => onDepositChange({ amount: parseInt(e.target.value) || 0 })}
+                    type="text"
+                    inputMode="numeric"
+                    value={depositDisplay}
+                    onChange={handleDepositInput}
+                    onFocus={handleDepositFocus}
+                    onBlur={handleDepositBlur}
                     placeholder="0"
                     className={`${inputStyle} ${errors['deposit.amount'] ? errorInputStyle : ''}`}
                     id="input-deposit-amount"

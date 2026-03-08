@@ -119,7 +119,7 @@ function getDefaultFormData(reservationType: ReservationType): GuestInfoFormData
     extraBedPrice: 0,
     arrivalTime: '',
     departureTime: '',
-    userCheckIn: '',
+    userCheckIn: 'Admin User',
     marketSegmentId: '',
     channelId: '',
     sourceId: '',
@@ -312,6 +312,20 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
     });
   }, []);
 
+  const handleNightsChange = (nights: number) => {
+    if (formData.checkIn && nights > 0) {
+      const checkInDate = new Date(formData.checkIn);
+      const checkOutDate = new Date(checkInDate);
+      checkOutDate.setDate(checkOutDate.getDate() + nights);
+      const checkOut = checkOutDate.toISOString().split('T')[0];
+      setFormData((prev) => ({
+        ...prev,
+        checkOut,
+        nights,
+      }));
+    }
+  };
+
   const handleNext = useCallback(() => {
     const validationErrors = validateStep1(formData);
     if (Object.keys(validationErrors).length > 0) {
@@ -444,6 +458,7 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
             errors={errors}
             onChange={handleFormChange}
             onDepositChange={handleDepositChange}
+            onNightsChange={handleNightsChange}
             calculatedNights={calculatedNights}
           />
         ) : (
