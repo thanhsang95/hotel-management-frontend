@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { Room, RoomAssignment, RoomHold } from '../../lib/types';
+import { formatPrice } from '../../lib/utils/format';
 import { RoomSelector } from './RoomSelector';
 
 // ==========================================
@@ -27,14 +28,6 @@ interface RoomAssignmentGroupProps {
   onAssignRoom: (holdIndex: number, roomId: string) => void;
   onRemoveAssignment: (globalIndex: number) => void;
   onAutoAssign: (holdIndex: number) => void;
-}
-
-// ==========================================
-// Format helper
-// ==========================================
-
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
 }
 
 // ==========================================

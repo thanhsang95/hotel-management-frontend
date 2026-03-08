@@ -2,6 +2,7 @@
 
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { RoomHold } from '../../lib/types';
+import { formatPrice } from '../../lib/utils/format';
 
 // ==========================================
 // Types
@@ -12,14 +13,6 @@ interface RoomHoldListProps {
   getRoomTypeName: (id: string) => string;
   getRoomCategoryName: (id: string) => string;
   onRemove: (index: number) => void;
-}
-
-// ==========================================
-// Format helper
-// ==========================================
-
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
 }
 
 // ==========================================
