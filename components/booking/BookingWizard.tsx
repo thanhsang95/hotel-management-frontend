@@ -481,6 +481,7 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
             onRoomHoldsChange={setRoomHolds}
             onRoomAssignmentsChange={setRoomAssignments}
             reservationId={reservation?.id}
+            mode={mode}
           />
         )}
       </div>

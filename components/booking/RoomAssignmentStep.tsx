@@ -21,6 +21,7 @@ interface RoomAssignmentStepProps {
   onRoomHoldsChange: (holds: RoomHold[]) => void;
   onRoomAssignmentsChange: (assignments: RoomAssignment[]) => void;
   reservationId?: string;
+  mode: 'create' | 'edit';
 }
 
 // ==========================================
@@ -36,6 +37,7 @@ export function RoomAssignmentStep({
   onRoomHoldsChange,
   onRoomAssignmentsChange,
   reservationId,
+  mode,
 }: RoomAssignmentStepProps) {
   const {
     roomTypes,
@@ -50,9 +52,32 @@ export function RoomAssignmentStep({
 
   // ---- Hold Management ----
   const handleAddHold = useCallback((hold: RoomHold) => {
-    onRoomHoldsChange([...roomHolds, hold]);
+    const newHolds = [...roomHolds, hold];
+    onRoomHoldsChange(newHolds);
+
+    // Auto-create placeholder assignments (no specific room)
+    const holdIndex = newHolds.length - 1;
+    const newAssignments: RoomAssignment[] = [];
+    for (let i = 0; i < hold.quantity; i++) {
+      newAssignments.push({
+        roomHoldIndex: holdIndex,
+        roomId: '',
+        roomNumber: '',
+        roomPrice: hold.roomPrice,
+        adults: hold.adults,
+        children: hold.children,
+        childrenU7: 0,
+        childrenU3: 0,
+        extraBed: hold.extraBed,
+        extraBedPrice: hold.extraBedPrice,
+        extraPerson: 0,
+        status: 'pending',
+      });
+    }
+    onRoomAssignmentsChange([...roomAssignments, ...newAssignments]);
+
     setShowAddHold(false);
-  }, [roomHolds, onRoomHoldsChange]);
+  }, [roomHolds, roomAssignments, onRoomHoldsChange, onRoomAssignmentsChange]);
 
   const handleRemoveHold = useCallback((index: number) => {
     // Also remove associated assignments
@@ -304,7 +329,7 @@ export function RoomAssignmentStep({
             {roomHolds.map((hold, holdIndex) => {
               const assignmentsForHold = roomAssignments
                 .map((a, globalIdx) => ({ ...a, globalIndex: globalIdx }))
-                .filter((a) => a.roomHoldIndex === holdIndex && a.status === 'assigned');
+                .filter((a) => a.roomHoldIndex === holdIndex && (a.status === 'assigned' || a.status === 'pending'));
 
               const availableRooms = getAvailableRoomsForHold(holdIndex);
 
@@ -320,6 +345,7 @@ export function RoomAssignmentStep({
                   onAssignRoom={handleAssignRoom}
                   onRemoveAssignment={handleRemoveAssignment}
                   onAutoAssign={handleAutoAssign}
+                  mode={mode}
                 />
               );
             })}

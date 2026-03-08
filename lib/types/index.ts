@@ -212,7 +212,7 @@ export interface Booking extends BaseEntity {
 export type ReservationType = 'FIT' | 'GIT' | 'Walk-in';
 export type ReservationStatus = 'Confirmed' | 'Pending' | 'CheckedIn' | 'CheckedOut' | 'NoShow' | 'Cancelled';
 export type DepositMethod = 'Cash' | 'BankTransfer' | 'CreditCard';
-export type RoomAssignmentStatus = 'assigned' | 'released';
+export type RoomAssignmentStatus = 'pending' | 'assigned' | 'released';
 
 export interface DepositInfo {
   enabled: boolean;

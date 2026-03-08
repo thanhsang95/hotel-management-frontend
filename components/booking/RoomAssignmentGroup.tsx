@@ -28,6 +28,7 @@ interface RoomAssignmentGroupProps {
   onAssignRoom: (holdIndex: number, roomId: string) => void;
   onRemoveAssignment: (globalIndex: number) => void;
   onAutoAssign: (holdIndex: number) => void;
+  mode: 'create' | 'edit';
 }
 
 // ==========================================
@@ -56,11 +57,15 @@ function RoomAssignmentRow({
       <div className="flex items-center gap-4 flex-1">
         {/* Room Number */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
-            <span className="text-xs font-bold text-[#1E40AF]">
-              {assignment.roomNumber}
-            </span>
-          </div>
+          {assignment.roomNumber ? (
+            <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] flex items-center justify-center">
+              <span className="text-xs font-bold text-[#1E40AF]">
+                {assignment.roomNumber}
+              </span>
+            </div>
+          ) : (
+            <span className="text-gray-400 italic text-xs">Chưa phân phòng</span>
+          )}
         </div>
 
         {/* Details */}
@@ -121,6 +126,7 @@ export function RoomAssignmentGroup({
   onAssignRoom,
   onRemoveAssignment,
   onAutoAssign,
+  mode,
 }: RoomAssignmentGroupProps) {
   const [showSelector, setShowSelector] = useState(false);
 
@@ -167,49 +173,51 @@ export function RoomAssignmentGroup({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Auto Assign */}
-          {!isFull && (
+        {mode === 'edit' && (
+          <div className="flex items-center gap-2">
+            {/* Auto Assign */}
+            {!isFull && (
+              <button
+                onClick={() => onAutoAssign(holdIndex)}
+                className="
+                  flex items-center gap-1 px-2.5 py-1 rounded-lg
+                  text-xs font-medium
+                  text-[#F59E0B] bg-[#FFFBEB] hover:bg-[#FEF3C7]
+                  transition-all duration-200 cursor-pointer
+                "
+                title="Tự động phân phòng"
+                id={`btn-auto-assign-${holdIndex}`}
+              >
+                <BoltIcon className="w-3.5 h-3.5" />
+                Auto
+              </button>
+            )}
+
+            {/* Add Room (+) */}
             <button
-              onClick={() => onAutoAssign(holdIndex)}
-              className="
+              onClick={() => setShowSelector(true)}
+              disabled={isFull}
+              className={`
                 flex items-center gap-1 px-2.5 py-1 rounded-lg
                 text-xs font-medium
-                text-[#F59E0B] bg-[#FFFBEB] hover:bg-[#FEF3C7]
                 transition-all duration-200 cursor-pointer
-              "
-              title="Tự động phân phòng"
-              id={`btn-auto-assign-${holdIndex}`}
+                ${isFull
+                  ? 'text-[#9CA3AF] bg-[#F3F4F6] cursor-not-allowed'
+                  : 'text-[#1E40AF] bg-[#EFF6FF] hover:bg-[#DBEAFE]'
+                }
+              `}
+              title={isFull ? `Đã đủ ${totalCount} phòng` : 'Thêm phòng'}
+              id={`btn-add-room-${holdIndex}`}
             >
-              <BoltIcon className="w-3.5 h-3.5" />
-              Auto
+              <PlusIcon className="w-3.5 h-3.5" />
+              Thêm
             </button>
-          )}
-
-          {/* Add Room (+) */}
-          <button
-            onClick={() => setShowSelector(true)}
-            disabled={isFull}
-            className={`
-              flex items-center gap-1 px-2.5 py-1 rounded-lg
-              text-xs font-medium
-              transition-all duration-200 cursor-pointer
-              ${isFull
-                ? 'text-[#9CA3AF] bg-[#F3F4F6] cursor-not-allowed'
-                : 'text-[#1E40AF] bg-[#EFF6FF] hover:bg-[#DBEAFE]'
-              }
-            `}
-            title={isFull ? `Đã đủ ${totalCount} phòng` : 'Thêm phòng'}
-            id={`btn-add-room-${holdIndex}`}
-          >
-            <PlusIcon className="w-3.5 h-3.5" />
-            Thêm
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Room Selector Modal */}
-      {showSelector && (
+      {mode === 'edit' && showSelector && (
         <div className="px-4 py-3 bg-[#FEFCE8] border-b border-[#E2E8F0]">
           <RoomSelector
             availableRooms={availableRooms}
