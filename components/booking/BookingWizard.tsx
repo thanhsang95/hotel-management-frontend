@@ -15,6 +15,7 @@ import {
     RoomHold
 } from '../../lib/types';
 import { GuestInfoForm, GuestInfoFormData } from './GuestInfoForm';
+import { ProformaInvoice } from './proforma-invoice';
 import { ReservationTypeSelector } from './ReservationTypeSelector';
 import { RoomAssignmentStep } from './RoomAssignmentStep';
 
@@ -217,7 +218,7 @@ export function validateStep1(
 // ==========================================
 
 export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = false }: BookingWizardProps) {
-  const { addReservation, updateReservation, companyProfiles, addCompanyProfile } = useMockData();
+  const { addReservation, updateReservation, companyProfiles, addCompanyProfile, hotels, roomCategories, roomTypes } = useMockData();
 
   // --- Wizard Step ---
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
@@ -244,6 +245,9 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
 
   // --- Validation Errors ---
   const [errors, setErrors] = useState<ValidationErrors>({});
+
+  // --- Invoice Modal ---
+  const [showInvoice, setShowInvoice] = useState(false);
 
   // --- Computed: auto-calc nights ---
   const calculatedNights = useMemo(() => {
@@ -510,6 +514,13 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
           {/* Edit mode specific buttons */}
           {mode === 'edit' && reservation && (
             <>
+              <button
+                type="button"
+                onClick={() => setShowInvoice(true)}
+                className="px-4 py-2.5 border border-[#3B82F6] text-[#3B82F6] rounded-lg hover:bg-[#EFF6FF] text-sm font-medium flex items-center gap-2"
+              >
+                🖨️ In hóa đơn
+              </button>
               {reservation.status !== 'NoShow' && reservation.status !== 'Cancelled' && reservation.status !== 'CheckedOut' && (
                 <button
                   onClick={handleNoShow}
@@ -592,6 +603,28 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
           )}
         </div>
       </div>
+
+      {/* Proforma Invoice Modal */}
+      {showInvoice && reservation && (
+        <ProformaInvoice
+          reservation={{
+            ...reservation,
+            bookingName: formData.bookingName,
+            companyName: formData.companyName,
+            phone: formData.phone,
+            email: formData.email,
+            checkIn: formData.checkIn,
+            checkOut: formData.checkOut,
+            nights: calculatedNights,
+            roomHolds: roomHolds,
+            deposit: formData.deposit as DepositInfo,
+          }}
+          hotel={hotels[0]}
+          roomCategories={roomCategories}
+          roomTypes={roomTypes}
+          onClose={() => setShowInvoice(false)}
+        />
+      )}
     </div>
   );
 }
