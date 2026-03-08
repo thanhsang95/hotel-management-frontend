@@ -54,30 +54,8 @@ export function RoomAssignmentStep({
   const handleAddHold = useCallback((hold: RoomHold) => {
     const newHolds = [...roomHolds, hold];
     onRoomHoldsChange(newHolds);
-
-    // Auto-create placeholder assignments (no specific room)
-    const holdIndex = newHolds.length - 1;
-    const newAssignments: RoomAssignment[] = [];
-    for (let i = 0; i < hold.quantity; i++) {
-      newAssignments.push({
-        roomHoldIndex: holdIndex,
-        roomId: '',
-        roomNumber: '',
-        roomPrice: hold.roomPrice,
-        adults: hold.adults,
-        children: hold.children,
-        childrenU7: 0,
-        childrenU3: 0,
-        extraBed: hold.extraBed,
-        extraBedPrice: hold.extraBedPrice,
-        extraPerson: 0,
-        status: 'pending',
-      });
-    }
-    onRoomAssignmentsChange([...roomAssignments, ...newAssignments]);
-
     setShowAddHold(false);
-  }, [roomHolds, roomAssignments, onRoomHoldsChange, onRoomAssignmentsChange]);
+  }, [roomHolds, onRoomHoldsChange]);
 
   const handleRemoveHold = useCallback((index: number) => {
     // Also remove associated assignments
