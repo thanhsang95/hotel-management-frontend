@@ -217,7 +217,7 @@ export function validateStep1(
 // ==========================================
 
 export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = false }: BookingWizardProps) {
-  const { addReservation, updateReservation } = useMockData();
+  const { addReservation, updateReservation, companyProfiles, addCompanyProfile } = useMockData();
 
   // --- Wizard Step ---
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
@@ -324,6 +324,14 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
         nights,
       }));
     }
+  };
+
+  const handleAddCompany = (name: string) => {
+    addCompanyProfile({
+      type: 'Company',
+      name,
+      isBlacklisted: false,
+    });
   };
 
   const handleNext = useCallback(() => {
@@ -460,6 +468,8 @@ export function BookingWizard({ mode, reservation, onCancel, onSave, embedded = 
             onDepositChange={handleDepositChange}
             onNightsChange={handleNightsChange}
             calculatedNights={calculatedNights}
+            companyProfiles={companyProfiles}
+            onAddCompany={handleAddCompany}
           />
         ) : (
           <RoomAssignmentStep

@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useMockData } from '../../lib/context/MockDataContext';
-import { DepositInfo, DepositMethod, ReservationType } from '../../lib/types';
+import { CompanyProfile, DepositInfo, DepositMethod, ReservationType } from '../../lib/types';
 import { formatCurrency, parseCurrency } from '../../lib/utils/format';
 import { ValidationErrors } from './BookingWizard';
+import { CompanySelect } from './company-select';
 
 // ==========================================
 // GuestInfoForm Types
@@ -49,6 +50,8 @@ interface GuestInfoFormProps {
   onDepositChange: (deposit: Partial<DepositInfo>) => void;
   onNightsChange: (nights: number) => void;
   calculatedNights: number;
+  companyProfiles: CompanyProfile[];
+  onAddCompany: (name: string) => void;
 }
 
 // ==========================================
@@ -116,6 +119,8 @@ export function GuestInfoForm({
   onDepositChange,
   onNightsChange,
   calculatedNights,
+  companyProfiles,
+  onAddCompany,
 }: GuestInfoFormProps) {
   const { marketSegments, channels, sourceCodes } = useMockData();
   const visibility = getFieldVisibility(reservationType);
@@ -184,17 +189,14 @@ export function GuestInfoForm({
                   <span className="text-[#EF4444] ml-1">*</span>
                 )}
               </label>
-              <input
-                type="text"
+              <CompanySelect
                 value={formData.companyName}
-                onChange={(e) => onChange('companyName', e.target.value)}
-                placeholder="Nhập tên công ty"
-                className={`${inputStyle} ${errors.companyName ? errorInputStyle : ''}`}
-                id="input-company-name"
+                companyProfiles={companyProfiles}
+                onSelect={(name) => onChange('companyName', name)}
+                onAddNew={onAddCompany}
+                error={errors.companyName}
+                required={reservationType === 'GIT'}
               />
-              {errors.companyName && (
-                <p className={errorTextStyle}>{errors.companyName}</p>
-              )}
             </div>
           )}
 
